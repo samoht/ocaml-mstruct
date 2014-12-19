@@ -41,12 +41,14 @@ configure:
 # OASIS_STOP
 
 VERSION = $(shell grep 'Version:' _oasis | sed 's/Version: *//')
-NAME    = ocaml-$(shell grep 'Name:' _oasis    | sed 's/Name: *//')
-ARCHIVE = https://github.com/mirage/$(NAME)/archive/
+NAME    = $(shell grep 'Name:' _oasis    | sed 's/Name: *//')
+ARCHIVE = https://github.com/mirage/ocaml-$(NAME)/archive/$(VERSION).tar.gz
 
 release:
 	git tag -a $(VERSION) -m "Version $(VERSION)."
 	git push upstream $(VERSION)
-	opam publish prepare $(NAME).$(VERSION) $(ARCHIVE)/$(VERSION).tar.gz
-	opam publish submit $(NAME).$(VERSION)
-	rm -rf $(NAME).$(VERSION)
+	$(MAKE) pr
+
+pr:
+	opam publish prepare $(NAME).$(VERSION) $(ARCHIVE)
+	opam publish submit $(NAME).$(VERSION) && rm -rf $(NAME).$(VERSION)
